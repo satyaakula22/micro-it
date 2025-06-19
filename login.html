@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login - Elegant UI</title>
+  <style>
+    :root {
+      --clr-primary: #111827;
+      --clr-gray-dark: #374151;
+      --clr-gray: #6b7280;
+      --clr-gray-light: #9ca3af;
+      --clr-bg: #ffffff;
+      --radius: 0.75rem;
+      --transition: 0.3s ease;
+      --font-sans: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      background: var(--clr-bg);
+      color: var(--clr-gray-dark);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 400px;
+      background: var(--clr-bg);
+      padding: 3rem 2rem 2.5rem;
+      border-radius: var(--radius);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 2.5rem;
+      line-height: 1.1;
+      margin-bottom: 0.75rem;
+      color: var(--clr-primary);
+      text-align: center;
+    }
+
+    p.subtitle {
+      color: var(--clr-gray);
+      font-size: 1rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      user-select: none;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+      color: var(--clr-gray-dark);
+      user-select: none;
+      display: block;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border: 1.5px solid var(--clr-gray-light);
+      border-radius: var(--radius);
+      transition: border-color var(--transition);
+      outline-offset: 2px;
+      outline-color: transparent;
+    }
+    input[type="email"]:focus,
+    input[type="password"]:focus {
+      border-color: var(--clr-primary);
+      outline-color: var(--clr-primary);
+      outline-style: solid;
+    }
+
+    button {
+      padding: 0.85rem 1rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #fff;
+      background: var(--clr-primary);
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background-color var(--transition), transform 0.3s ease;
+      user-select: none;
+    }
+    button:hover,
+    button:focus {
+      background-color: #1f2937;
+      transform: scale(1.03);
+      outline: none;
+    }
+
+    .footer-text {
+      margin-top: 1rem;
+      font-size: 0.875rem;
+      color: var(--clr-gray);
+      text-align: center;
+      user-select: none;
+    }
+
+    .footer-text a {
+      color: var(--clr-primary);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color var(--transition);
+    }
+    .footer-text a:hover,
+    .footer-text a:focus {
+      color: #1f2937;
+      outline: none;
+    }
+  </style>
+</head>
+<body>
+  <main class="container" role="main" aria-labelledby="loginTitle">
+    <h1 id="loginTitle">Welcome Back</h1>
+    <p class="subtitle">Sign in to your account to continue</p>
+    <form id="loginForm" novalidate>
+      <div>
+        <label for="email">Email address</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+          required
+          aria-required="true"
+          aria-describedby="emailHelp"
+        />
+      </div>
+      <div>
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          required
+          aria-required="true"
+          minlength="6"
+          aria-describedby="passwordHelp"
+        />
+      </div>
+      <button type="submit" aria-label="Login to your account">Log In</button>
+    </form>
+    <p class="footer-text">
+      Don't have an account? <a href="#" tabindex="0">Sign up</a>
+    </p>
+  </main>
+  <script>
+    const form = document.getElementById('loginForm');
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      // Simulate login success
+      alert('Login submitted successfully!');
+      form.reset();
+    });
+  </script>
+</body>
+</html>
+
