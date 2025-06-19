@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Modern To-Do List Application</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  <style>
+    /* Reset and base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px 16px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: 1rem;
+      color: inherit;
+      outline-offset: 2px;
+    }
+    button {
+      cursor: pointer;
+      user-select:none;
+    }
+
+    /* Container */
+    #app {
+      background: rgba(255 255 255 / 0.10);
+      border-radius: 16px;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.25);
+      width: 100%;
+      max-width: 600px;
+      padding: 32px 24px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      user-select:none;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+    }
+    header h1 {
+      font-weight: 700;
+      font-size: 2.25rem;
+      background: linear-gradient(135deg, #81e6d9, #5a67d8);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      user-select:text;
+    }
+
+    /* Input area */
+    form#newTaskForm {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: space-between;
+      user-select:none;
+    }
+    input[name="taskText"] {
+      flex-grow: 2;
+      min-width: 140px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: none;
+      font-size: 1.1rem;
+      background: rgba(255 255 255 / 0.2);
+      color: #eef2f7;
+      transition: background-color 0.3s ease;
+    }
+    input[name="taskText"]:focus {
+      background: rgba(255 255 255 / 0.35);
+      outline: 3px solid #6ee7b7;
+    }
+    select[name="taskPriority"] {
+      flex-grow: 1;
+      min-width: 130px;
+      padding: 12px 12px;
+      border-radius: 12px;
+      border: none;
+      background: rgba(255 255 255 / 0.2);
+      color: #eef2f7;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+    select[name="taskPriority"]:focus {
+      background: rgba(255 255 255 / 0.35);
+      outline: 3px solid #6ee7b7;
+    }
+    button#addTaskBtn {
+      background: linear-gradient(135deg, #6ee7b7, #3b82f6);
+      border: none;
+      border-radius: 12px;
+      color: black;
+      font-weight: 600;
+      padding: 12px 20px;
+      min-width: 100px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      user-select:none;
+      transition: box-shadow 0.3s ease, transform 0.2s ease;
+    }
+    button#addTaskBtn:hover,
+    button#addTaskBtn:focus {
+      box-shadow: 0 0 20px #3b82f6aa;
+      transform: translateY(-2px);
+      outline: none;
+    }
+    button#addTaskBtn:focus-visible {
+      outline: 3px solid #3b82f6cc;
+      outline-offset: 2px;
+    }
+
+    /* Task List */
+    #taskList {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-height: 440px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #3b82f6  transparent;
+      user-select:none;
+    }
+    #taskList::-webkit-scrollbar {
+      width: 8px;
+    }
+    #taskList::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    #taskList::-webkit-scrollbar-thumb {
+      background-color: #3b82f6;
+      border-radius: 4px;
+      border: 2px solid transparent;
+      background-clip: content-box;
+    }
+
+    .task-item {
+      background: rgba(255 255 255 / 0.15);
+      border-radius: 14px;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+      gap: 16px;
+      cursor: default;
+    }
+    .task-item.completed {
+      opacity: 0.6;
+      text-decoration: line-through;
+      user-select:none;
+    }
+
+    /* Left side task info */
+    .task-info {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+    input[type="checkbox"].task-checkbox {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      accent-color: #34d399;
+      flex-shrink: 0;
+      user-select:none;
+    }
+    .task-text {
+      font-size: 1.1rem;
+      color: #e0e7ff;
+      user-select:text;
+      overflow-wrap: anywhere;
+      flex-grow: 1;
+      min-width: 0;
+    }
+    .task-text[contenteditable="true"] {
+      background: rgba(255 255 255 / 0.2);
+      border-radius: 8px;
+      padding: 2px 6px;
+      outline-offset: 2px;
+      transition: background-color 0.3s ease;
+      cursor: text;
+    }
+    .task-text[contenteditable="true"]:focus {
+      background: rgba(255 255 255 / 0.4);
+      outline: 3px solid #38bdf8;
+    }
+
+    /* Priority Badge */
+    .priority-badge {
+      flex-shrink: 0;
+      font-weight: 700;
+      color: white;
+      padding: 2px 10px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      user-select:none;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 80px;
+      text-align: center;
+      box-shadow: 0 0 6px rgba(0,0,0,0.4);
+    }
+    .priority-low {
+      background: #10b981;
+      box-shadow: 0 0 12px #10b981aa;
+    }
+    .priority-medium {
+      background: #fbbf24;
+      box-shadow: 0 0 12px #fbbf24aa;
+      color: #3a3a3a;
+    }
+    .priority-high {
+      background: #ef4444;
+      box-shadow: 0 0 12px #ef4444aa;
+    }
+
+    /* Right side buttons */
+    .task-actions {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    button.action-btn {
+      background: transparent;
+      border: none;
+      color: #cbd5e1;
+      cursor: pointer;
+      user-select:none;
+      padding: 6px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.3s ease, background-color 0.3s ease;
+    }
+    button.action-btn:hover,
+    button.action-btn:focus {
+      color: #60a5fa;
+      background: rgba(96, 165, 250, 0.2);
+      outline: none;
+    }
+    button.action-btn:focus-visible {
+      outline: 3px solid #3b82f6cc;
+      outline-offset: 2px;
+    }
+
+    /* Drag and drop */
+    .task-item.dragging {
+      opacity: 0.5;
+      box-shadow: 0 0 20px #3b82f6aa;
+    }
+
+    /* Empty message */
+    #emptyMessage {
+      text-align: center;
+      color: #94a3b8;
+      font-style: italic;
+      padding: 32px 0;
+      user-select:none;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      #app {
+        padding: 24px 16px 40px;
+      }
+      input[name="taskText"] {
+        flex-basis: 100%;
+      }
+      select[name="taskPriority"] {
+        flex-basis: 100%;
+      }
+      button#addTaskBtn {
+        flex-basis: 100%;
+        justify-content: center;
+      }
+      .task-actions {
+        gap: 4px;
+      }
+      .task-text {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="app" role="main" aria-label="To do list application">
+    <header>
+      <h1 tabindex="0">My To-Do List</h1>
+    </header>
+    <form id="newTaskForm" aria-label="Add new task form">
+      <input type="text" id="taskText" name="taskText" placeholder="Add new task..." aria-label="Task description" autocomplete="off" required minlength="1" />
+      <select id="taskPriority" name="taskPriority" aria-label="Task priority">
+        <option value="low" selected>Low Priority</option>
+        <option value="medium">Medium Priority</option>
+        <option value="high">High Priority</option>
+      </select>
+      <button type="submit" id="addTaskBtn" aria-label="Add Task">
+        <span class="material-icons" aria-hidden="true">add</span>
+        Add
+      </button>
+    </form>
+    <ul id="taskList" aria-live="polite" aria-relevant="additions removals" aria-label="List of tasks">
+      <li id="emptyMessage">No tasks yet. Add your first task!</li>
+    </ul>
+  </main>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const form = document.getElementById('newTaskForm');
+      const taskInput = document.getElementById('taskText');
+      const prioritySelect = document.getElementById('taskPriority');
+      const taskList = document.getElementById('taskList');
+      const emptyMessageId = 'emptyMessage';
+
+      let tasks = [];
+
+      const PRIORITY_CLASSES = {
+        'low': 'priority-low',
+        'medium': 'priority-medium',
+        'high': 'priority-high'
+      };
+
+      // Helpers
+      function saveTasks() {
+        localStorage.setItem('todoListTasks', JSON.stringify(tasks));
+      }
+
+      function loadTasks() {
+        const saved = localStorage.getItem('todoListTasks');
+        if (saved) {
+          try {
+            tasks = JSON.parse(saved);
+          } catch {
+            tasks = [];
+          }
+        }
+      }
+
+      function renderTasks() {
+        taskList.innerHTML = '';
+        if (tasks.length === 0) {
+          const emptyMsg = document.createElement('li');
+          emptyMsg.id = emptyMessageId;
+          emptyMsg.textContent = 'No tasks yet. Add your first task!';
+          emptyMsg.style.userSelect='none';
+          taskList.appendChild(emptyMsg);
+          return;
+        }
+        tasks.forEach(task => {
+          const li = document.createElement('li');
+          li.className = 'task-item';
+          li.setAttribute('draggable', 'true');
+          li.setAttribute('role', 'listitem');
+          li.dataset.id = task.id;
+          if (task.completed) li.classList.add('completed');
+
+          // Left side info container
+          const taskInfo = document.createElement('div');
+          taskInfo.className = 'task-info';
+
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.className = 'task-checkbox';
+          checkbox.checked = task.completed;
+          checkbox.setAttribute('aria-label', `Mark task "${task.text}" as complete`);
+          checkbox.tabIndex = 0;
+
+          // Editable text span
+          const taskTextSpan = document.createElement('span');
+          taskTextSpan.className = 'task-text';
+          taskTextSpan.textContent = task.text;
+          taskTextSpan.setAttribute('tabindex', '0');
+          taskTextSpan.setAttribute('aria-label', 'Task description. Double click or press enter to edit.');
+          taskTextSpan.setAttribute('role', 'textbox');
+          taskTextSpan.setAttribute('contenteditable', 'false');
+          taskTextSpan.spellcheck = false;
+
+          // Priority badge
+          const priorityBadge = document.createElement('div');
+          priorityBadge.className = 'priority-badge ' + PRIORITY_CLASSES[task.priority];
+          priorityBadge.textContent = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
+
+          taskInfo.appendChild(checkbox);
+          taskInfo.appendChild(taskTextSpan);
+          taskInfo.appendChild(priorityBadge);
+
+          // Right side actions container
+          const actions = document.createElement('div');
+          actions.className = 'task-actions';
+
+          // Edit button
+          const editBtn = document.createElement('button');
+          editBtn.type = 'button';
+          editBtn.className = 'action-btn edit-btn';
+          editBtn.setAttribute('aria-label', `Edit task: ${task.text}`);
+          editBtn.title = 'Edit task';
+          editBtn.tabIndex = 0;
+
+          const editIcon = document.createElement('span');
+          editIcon.className = 'material-icons';
+          editIcon.textContent = 'edit';
+
+          editBtn.appendChild(editIcon);
+
+          // Delete button
+          const deleteBtn = document.createElement('button');
+          deleteBtn.type = 'button';
+          deleteBtn.className = 'action-btn delete-btn';
+          deleteBtn.setAttribute('aria-label', `Delete task: ${task.text}`);
+          deleteBtn.title = 'Delete task';
+          deleteBtn.tabIndex = 0;
+
+          const deleteIcon = document.createElement('span');
+          deleteIcon.className = 'material-icons';
+          deleteIcon.textContent = 'delete';
+
+          deleteBtn.appendChild(deleteIcon);
+
+          actions.appendChild(editBtn);
+          actions.appendChild(deleteBtn);
+
+          // Append info and actions to list item
+          li.appendChild(taskInfo);
+          li.appendChild(actions);
+
+          taskList.appendChild(li);
+
+          // Event listeners
+
+          checkbox.addEventListener('change', () => {
+            task.completed = checkbox.checked;
+            saveTasks();
+            renderTasks();
+          });
+
+          deleteBtn.addEventListener('click', () => {
+            tasks = tasks.filter(t => t.id !== task.id);
+            saveTasks();
+            renderTasks();
+          });
+
+          editBtn.addEventListener('click', () => {
+            startEditing(taskTextSpan, task);
+          });
+
+          // Enable double click or enter key editing
+          taskTextSpan.addEventListener('dblclick', () => {
+            startEditing(taskTextSpan, task);
+          });
+          taskTextSpan.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              if (taskTextSpan.getAttribute('contenteditable') === 'true') {
+                finishEditing(taskTextSpan, task);
+              } else {
+                startEditing(taskTextSpan, task);
+              }
+            } else if (e.key === 'Escape') {
+              if (taskTextSpan.getAttribute('contenteditable') === 'true') {
+                cancelEditing(taskTextSpan, task);
+              }
+            }
+          });
+
+          // Drag and drop handlers
+          li.addEventListener('dragstart', dragStart);
+          li.addEventListener('dragover', dragOver);
+          li.addEventListener('dragenter', dragEnter);
+          li.addEventListener('dragleave', dragLeave);
+          li.addEventListener('drop', drop);
+          li.addEventListener('dragend', dragEnd);
+
+          // Priority click cycles priorities for accessibility
+          priorityBadge.tabIndex = 0;
+          priorityBadge.setAttribute('role', 'button');
+          priorityBadge.setAttribute('aria-label', `Change priority of task: ${task.text}`);
+          priorityBadge.addEventListener('click', () => cyclePriority(task, priorityBadge));
+          priorityBadge.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              cyclePriority(task, priorityBadge);
+            }
+          });
+        });
+      }
+
+      // Edit functions
+      function startEditing(el, task) {
+        el.setAttribute('contenteditable', 'true');
+        el.focus();
+        el.dataset.oldValue = el.textContent;
+        // Select all text
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+      function finishEditing(el, task) {
+        el.setAttribute('contenteditable', 'false');
+        const newValue = el.textContent.trim();
+        if (newValue.length === 0) {
+          el.textContent = el.dataset.oldValue;
+        } else {
+          task.text = newValue;
+          saveTasks();
+          renderTasks();
+        }
+      }
+      function cancelEditing(el, task) {
+        el.textContent = el.dataset.oldValue;
+        el.setAttribute('contenteditable', 'false');
+        el.focus();
+      }
+
+      // Priority cycling
+      function cyclePriority(task, badgeEl) {
+        const priorities = ['low', 'medium', 'high'];
+        let index = priorities.indexOf(task.priority);
+        index = (index + 1) % priorities.length;
+        task.priority = priorities[index];
+        badgeEl.className = 'priority-badge ' + PRIORITY_CLASSES[task.priority];
+        badgeEl.textContent = task.priority.charAt(0).toUpperCase() + task.priority.slice(1);
+        saveTasks();
+      }
+
+      // Drag and drop logic
+      let draggedEl = null;
+
+      function dragStart(e) {
+        draggedEl = e.currentTarget;
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', draggedEl.dataset.id);
+        setTimeout(() => {
+          draggedEl.classList.add('dragging');
+        }, 0);
+      }
+      function dragOver(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+      }
+      function dragEnter(e) {
+        e.preventDefault();
+        if (e.currentTarget !== draggedEl) {
+          e.currentTarget.classList.add('drag-over');
+        }
+      }
+      function dragLeave(e) {
+        e.currentTarget.classList.remove('drag-over');
+      }
+      function drop(e) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('drag-over');
+        if (draggedEl && e.currentTarget !== draggedEl) {
+          const draggedId = draggedEl.dataset.id;
+          const targetId = e.currentTarget.dataset.id;
+          const draggedIndex = tasks.findIndex(t => t.id === draggedId);
+          const targetIndex = tasks.findIndex(t => t.id === targetId);
+
+          // Remove dragged task and insert at target position
+          if (draggedIndex > -1 && targetIndex > -1) {
+            const draggedTask = tasks.splice(draggedIndex, 1)[0];
+            tasks.splice(targetIndex, 0, draggedTask);
+            saveTasks();
+            renderTasks();
+          }
+        }
+      }
+      function dragEnd(e) {
+        if (draggedEl) draggedEl.classList.remove('dragging');
+        draggedEl = null;
+        document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+      }
+
+      // Add new task handler
+      function addTask(text, priority) {
+        if (!text.trim()) return;
+        const newTask = {
+          id: crypto.randomUUID(),
+          text: text.trim(),
+          priority: priority || 'low',
+          completed: false
+        };
+        tasks.push(newTask);
+        saveTasks();
+        renderTasks();
+      }
+
+      // Form submit event
+      form.addEventListener('submit', e => {
+        e.preventDefault();
+        addTask(taskInput.value, prioritySelect.value);
+        taskInput.value = '';
+        prioritySelect.value = 'low';
+        taskInput.focus();
+      });
+
+      // Initialize app
+      function init() {
+        loadTasks();
+        renderTasks();
+        taskInput.focus();
+      }
+
+      init();
+
+    })();
+  </script>
+</body>
+</html>
+
